@@ -26,6 +26,8 @@ export default function TreasuryStrategiesPage() {
   );
   const [performance, setPerformance] = useState<Record<number, StrategyPerformancePoint[]>>({});
   const [withdrawTarget, setWithdrawTarget] = useState<StrategyRow | null>(null);
+  const treasuryAddress = process.env.NEXT_PUBLIC_TREASURY_ADDRESS ?? "";
+  const canRequestWithdrawal = Boolean(publicKey && publicKey === treasuryAddress);
 
   const config = useMemo(() => readGovernorConfig(), []);
   const network = (process.env.NEXT_PUBLIC_NETWORK || "testnet") as StellarNetwork;
@@ -291,7 +293,7 @@ export default function TreasuryStrategiesPage() {
                       Token: {s.token}
                     </p>
                   </div>
-                  {publicKey && (
+                  {canRequestWithdrawal && (
                     <button
                       type="button"
                       onClick={() => setWithdrawTarget(s)}
@@ -342,7 +344,7 @@ export default function TreasuryStrategiesPage() {
         </div>
       )}
 
-      {withdrawTarget && client && publicKey && (
+      {withdrawTarget && client && publicKey && canRequestWithdrawal && (
         <WithdrawalRequestModal
           client={client}
           strategy={withdrawTarget}

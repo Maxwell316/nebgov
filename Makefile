@@ -32,4 +32,4 @@ fmt:
 	cargo fmt --all
 
 lint:
-	cargo clippy --workspace -- -D warnings
+	cargo clippy $(CONTRACT_PACKAGES) -- -D warnings

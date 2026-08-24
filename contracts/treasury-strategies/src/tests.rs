@@ -43,6 +43,16 @@ fn register_adapter(env: &Env, client: &TreasuryStrategiesContractClient, admin:
 }
 
 #[test]
+fn test_register_strategy_rejected_from_non_admin() {
+    let (env, client, _admin, _treasury, token, _sac_admin) = setup();
+    let intruder = Address::generate(&env);
+    let adapter_id = env.register(MockAdapter, ());
+
+    let result = client.try_register_strategy(&intruder, &adapter_id, &token, &10_000, &COOLDOWN);
+    assert!(result.is_err());
+}
+
+#[test]
 fn test_deposit_rejected_from_non_treasury() {
     let (env, client, admin, _treasury, token, sac_admin) = setup();
     register_adapter(&env, &client, &admin, &token, 10_000);
@@ -179,4 +189,12 @@ fn test_get_total_value_sums_across_strategies() {
 
     let total = client.get_total_value(&token);
     assert_eq!(total, 160);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #12)")]
+fn test_register_strategy_rejects_invalid_max_allocation_bps() {
+    let (env, client, admin, _treasury, token, _sac_admin) = setup();
+    let adapter_id = env.register(MockAdapter, ());
+    client.register_strategy(&admin, &adapter_id, &token, &10_001, &COOLDOWN);
 }
